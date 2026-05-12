@@ -8,6 +8,11 @@
     ],
     "routes": [
         {
+            "src": "/",
+            "status": 301,
+            "headers": { "Location": "/api/characters" }
+        },
+        {
             "src": "/(.*)",
             "dest": "index.js"
         }

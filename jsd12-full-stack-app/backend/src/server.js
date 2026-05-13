@@ -1,7 +1,12 @@
 import express from "express";
 import { users } from "./fakeData/fakeUsers.js";
+import fs from "fs";
+import cors from "cors";
 
 const app = express();
+
+app.use(cors());
+app.use(express.json());
 
 app.get("/", (req, res) => {
     res.send(`<!doctype html>
@@ -37,10 +42,39 @@ app.get("/", (req, res) => {
 });
 
 app.get("/users", (req, res) => {
-    res.send(users);
+    res.json(users);
 });
+
+app.post("/users", (req, res) => {
+    // 1. ใส่ body ใน thunder client
+    // {
+    //   "id": "6",
+    //   "username": "fedora",
+    //   "email": "f@f.com",
+    //   "password": "ffff"
+    // }
+    const newUser = req.body;
+    users.push(newUser);
+
+    const fileContent = `export const users = ${JSON.stringify(users, null, 4)};\n`;
+
+    try {
+        fs.writeFileSync("./src/fakeData/fakeUsers.js", fileContent, "utf-8");
+        res.status(201).json({
+            message: "post, done!",
+            data: newUser,
+        });
+    } catch (error) {
+        console.error("post, fail!:", error);
+        res.status(500).json({ message: "server down" });
+    }
+});
+
+// app.delete("/users", (req, res) => {});
+
+// app.put("/users", (req, res) => {});
 
 const PORT = 3002;
 app.listen(PORT, () => {
-    console.log(`Server running on PORT: ${PORT} 😈`);
+    console.log(`Server running at: http://localhost:${PORT} 😈`);
 });
